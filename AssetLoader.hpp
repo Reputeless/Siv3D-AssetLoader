@@ -40,6 +40,44 @@ namespace s3d
 		{
 		private:
 
+			class AssetLoader_Impl;
+
+			std::shared_ptr<AssetLoader_Impl> m_pImpl;
+
+		public:
+
+			AssetLoader();
+
+			AssetLoader(const Array<FilePath>& paths, bool startImmediately);
+
+			void start();
+
+			void update(const int32 maxCreationPerFrame = 4);
+
+			size_t num_loaded() const;
+
+			size_t size() const;
+
+			void waitAll();
+
+			bool isActive();
+
+			bool done() const;
+
+			const Array<bool>& getStates() const;
+
+			bool getState(const size_t index) const;
+
+			const Array<AssetType>& getAssets() const;
+
+			const AssetType& getAsset(const size_t index) const;
+		};
+
+		template <class AssetType, class AssetDataType>
+		class AssetLoader<AssetType, AssetDataType>::AssetLoader_Impl
+		{
+		private:
+
 			Array<FilePath> m_paths;
 
 			Array<AssetDataType> m_assetData;
@@ -56,9 +94,9 @@ namespace s3d
 
 		public:
 
-			AssetLoader() = default;
+			AssetLoader_Impl() = default;
 
-			AssetLoader(const Array<FilePath>& paths, bool startImmediately)
+			AssetLoader_Impl(const Array<FilePath>& paths, bool startImmediately)
 				: m_paths(paths)
 				, m_assetData(paths.size())
 				, m_assets(paths.size())
@@ -70,9 +108,9 @@ namespace s3d
 				}
 			}
 
-			~AssetLoader()
+			~AssetLoader_Impl()
 			{
-				wait_all();
+				waitAll();
 			}
 
 			void start()
@@ -96,7 +134,7 @@ namespace s3d
 				return;
 			}
 
-			void update(const int32 maxCreationPerFrame = 4)
+			void update(const int32 maxCreationPerFrame)
 			{
 				if (!m_isActive || done())
 				{
@@ -136,9 +174,9 @@ namespace s3d
 				return m_paths.size();
 			}
 
-			void wait_all()
+			void waitAll()
 			{
-				when_all(std::begin(m_tasks), std::end(m_tasks)).wait();
+				concurrency::when_all(std::begin(m_tasks), std::end(m_tasks)).wait();
 			}
 
 			bool isActive()
@@ -156,23 +194,87 @@ namespace s3d
 				return m_states;
 			}
 
-			bool getState(const size_t index) const
-			{
-				return m_states[index];
-			}
-
 			const Array<AssetType>& getAssets() const
 			{
 				return m_assets;
 			}
-
-			const AssetType& getAsset(const size_t index) const
-			{
-				return m_assets[index];
-			}
 		};
 
-		using TextureLoader = AssetLoader<Texture, Image>;
-		using SoundLoader = AssetLoader<Sound, Wave>;
+		template <class AssetType, class AssetDataType>
+		inline AssetLoader<AssetType, AssetDataType>::AssetLoader()
+			: m_pImpl(std::make_shared<AssetLoader_Impl>()) {}
+
+		template <class AssetType, class AssetDataType>
+		inline AssetLoader<AssetType, AssetDataType>::AssetLoader(const Array<FilePath>& paths, bool startImmediately)
+			: m_pImpl(std::make_shared<AssetLoader_Impl>(paths, startImmediately)) {}
+
+		template <class AssetType, class AssetDataType>
+		inline void AssetLoader<AssetType, AssetDataType>::start()
+		{
+			m_pImpl->start();
+		}
+
+		template <class AssetType, class AssetDataType>
+		inline void AssetLoader<AssetType, AssetDataType>::update(const int32 maxCreationPerFrame)
+		{
+			m_pImpl->update(maxCreationPerFrame);
+		}
+
+		template <class AssetType, class AssetDataType>
+		inline size_t AssetLoader<AssetType, AssetDataType>::num_loaded() const
+		{
+			return m_pImpl->num_loaded();
+		}
+
+		template <class AssetType, class AssetDataType>
+		inline size_t AssetLoader<AssetType, AssetDataType>::size() const
+		{
+			return m_pImpl->size();
+		}
+
+		template <class AssetType, class AssetDataType>
+		inline void AssetLoader<AssetType, AssetDataType>::waitAll()
+		{
+			m_pImpl->waitAll();
+		}
+
+		template <class AssetType, class AssetDataType>
+		inline bool AssetLoader<AssetType, AssetDataType>::isActive()
+		{
+			return m_pImpl->isActive();
+		}
+
+		template <class AssetType, class AssetDataType>
+		inline bool AssetLoader<AssetType, AssetDataType>::done() const
+		{
+			return m_pImpl->done();
+		}
+
+		template <class AssetType, class AssetDataType>
+		inline const Array<bool>& AssetLoader<AssetType, AssetDataType>::getStates() const
+		{
+			return m_pImpl->getStates();
+		}
+
+		template <class AssetType, class AssetDataType>
+		inline bool AssetLoader<AssetType, AssetDataType>::getState(const size_t index) const
+		{
+			return m_pImpl->getStates()[index];
+		}
+
+		template <class AssetType, class AssetDataType>
+		inline const Array<AssetType>& AssetLoader<AssetType, AssetDataType>::getAssets() const
+		{
+			return m_pImpl->getAssets();
+		}
+
+		template <class AssetType, class AssetDataType>
+		inline const AssetType& AssetLoader<AssetType, AssetDataType>::getAsset(const size_t index) const
+		{
+			return m_pImpl->getAssets()[index];
+		}
+
+		using TextureLoader	= AssetLoader<Texture, Image>;
+		using SoundLoader	= AssetLoader<Sound, Wave>;
 	}
 }
