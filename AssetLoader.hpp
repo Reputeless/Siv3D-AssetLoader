@@ -60,7 +60,7 @@ namespace s3d
 
 			void waitAll();
 
-			bool isActive();
+			bool isActive() const;
 
 			bool done() const;
 
@@ -179,7 +179,7 @@ namespace s3d
 				concurrency::when_all(std::begin(m_tasks), std::end(m_tasks)).wait();
 			}
 
-			bool isActive()
+			bool isActive() const
 			{
 				return m_isActive;
 			}
@@ -239,7 +239,7 @@ namespace s3d
 		}
 
 		template <class AssetType, class AssetDataType>
-		inline bool AssetLoader<AssetType, AssetDataType>::isActive()
+		inline bool AssetLoader<AssetType, AssetDataType>::isActive() const
 		{
 			return m_pImpl->isActive();
 		}
