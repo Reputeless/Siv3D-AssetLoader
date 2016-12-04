@@ -50,7 +50,7 @@ void TestTextureLoader()
 		}
 
 		//// ロードしたテクスチャを描画。ロード中は代わりに四角を表示
-		//for (size_t i : step(loader.size()))
+		//for (int32 i : step(static_cast<int32>(loader.size())))
 		//{
 		//	const Rect area(20 + (i % 6) * 100, 20 + (i / 6) * 80, 80, 60);
 
@@ -105,7 +105,7 @@ void TestSoundLoader()
 		}
 
 		//// ロード完了した Sound の再生ボタンを表示。ロード中は枠のみ。
-		//for (size_t i : step(loader.size()))
+		//for (int32 i : step(static_cast<int32>(loader.size())))
 		//{
 		//	const Rect area(20 + (i % 6) * 100, 20 + (i / 6) * 80, 80, 60);
 
