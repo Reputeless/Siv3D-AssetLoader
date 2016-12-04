@@ -52,7 +52,7 @@ namespace s3d
 
 			void start();
 
-			void update(const int32 maxCreationPerFrame = 4);
+			void update(const int32 maxCreationPerFrame);
 
 			size_t num_loaded() const;
 
